@@ -1,4 +1,0 @@
-PyAudio==0.2.11
-librosa==0.6.0
-asciimatics==1.9.0
-numpy
