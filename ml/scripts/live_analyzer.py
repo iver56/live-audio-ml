@@ -1,10 +1,9 @@
-import math
 import struct
-from asciimatics.screen import Screen
 
 import librosa
 import numpy as np
 import pyaudio
+from asciimatics.screen import Screen
 
 SAMPLES_PER_CHUNK = 1024
 FORMAT = pyaudio.paInt16
