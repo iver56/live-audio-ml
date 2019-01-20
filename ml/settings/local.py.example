@@ -1,1 +1,3 @@
-AUDIO_EVENT_DATASET_PATH = 'D:\\code\\AudioEventDataset'
+from pathlib import Path
+
+AUDIO_EVENT_DATASET_PATH = Path('D:\\code\\AudioEventDataset')
