@@ -1,8 +1,9 @@
 import os
 
+import librosa
 import numpy as np
 from scipy.io import wavfile
-import librosa
+
 from ml.settings import AUDIO_EVENT_DATASET_PATH, DATA_DIR
 from ml.utils.filename import get_file_paths
 from ml.utils.plot import plot_matrix
