@@ -105,3 +105,6 @@ venv.bak/
 
 # IntelliJ IDEA
 .idea
+
+# Machine-specific settings
+ml/settings/local.py
