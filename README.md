@@ -1,0 +1,3 @@
+# Setup
+
+* `conda env create`
