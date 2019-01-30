@@ -9,7 +9,7 @@ from keras.optimizers import Adam
 from tcn import TCN
 
 
-def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=48, learning_rate=0.002):
+def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learning_rate=0.002):
     model_input = Input(shape=(None, input_vector_size))
     model_output = TCN(
         return_sequences=False,
