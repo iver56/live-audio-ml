@@ -9,6 +9,7 @@ dependencies:
   - pip>=9.0.1,<=18.1
   - python=3.6.*
   - scipy=1
+  - tensorflow=1.12
   - pip:
       - asciimatics==1.9.0
       - black
