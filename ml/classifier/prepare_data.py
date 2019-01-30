@@ -21,6 +21,10 @@ if __name__ == "__main__":
 
         sound_np = sound_np / 32767  # ends up roughly between -1 and 1
 
+        # Normalize the sound level and squeeze (compress) the peaks a little
+        normalization_value = np.percentile(np.abs(sound_np), 75)
+        sound_np = np.tanh(sound_np / normalization_value)
+
         spectrogram = librosa.feature.melspectrogram(
             y=sound_np, sr=sample_rate, n_mels=100, power=1.0
         )
