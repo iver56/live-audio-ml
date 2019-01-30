@@ -7,7 +7,7 @@ from scipy.io import wavfile
 from tqdm import tqdm
 
 from ml.classifier.categories import CATEGORIES, is_laughter_category
-from ml.settings import AUDIO_EVENT_DATASET_PATH, DATA_DIR
+from ml.settings import AUDIO_EVENT_DATASET_PATH, DATA_DIR, SAMPLE_RATE
 from ml.utils.filename import get_file_paths
 
 if __name__ == "__main__":
@@ -27,7 +27,13 @@ if __name__ == "__main__":
         for file_path in file_paths:
             # print(file_path)
             sample_rate, sound_np = wavfile.read(file_path)
-            # print(sample_rate)
+            if sample_rate != SAMPLE_RATE:
+                print(
+                    "Skipped due to unexpected sample rate {} (expected {})".format(
+                        sample_rate, SAMPLE_RATE
+                    )
+                )
+
             # print(sound_np.shape, sound_np.dtype, np.amin(sound_np), np.amax(sound_np))
 
             sound_np = sound_np / 32767  # ends up roughly between -1 and 1

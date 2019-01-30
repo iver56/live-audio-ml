@@ -7,6 +7,7 @@ BASE_DIR = Path(
 DATA_DIR = BASE_DIR / "data"
 AUDIO_EVENT_DATASET_PATH = DATA_DIR / "AudioEventDataset"
 
+SAMPLE_RATE = 16000
 
 # If local.py is available, Load those local settings that may override the defaults above.
 # This is be useful because each computer may have the files stored in different locations.
