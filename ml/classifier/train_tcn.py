@@ -14,7 +14,8 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=48, learn
     model_output = TCN(
         return_sequences=False,
         nb_filters=int(num_filters),
-        dilations=[1, 2, 4, 8, 16, 32, 64, 128],
+        dilations=[1, 2, 4, 8, 16, 32, 64],
+        nb_stacks=2
     )(model_input)
     model_output = Dense(target_vector_size, activation="sigmoid")(model_output)
 
