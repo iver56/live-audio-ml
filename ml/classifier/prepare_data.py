@@ -13,6 +13,7 @@ from ml.utils.filename import get_file_paths
 NUM_MELS = 100
 FFT_WINDOW_SIZE = 2048
 HOP_LENGTH = 512  # AKA stride
+FIXED_SOUND_LENGTH = 150  # in "spectrogram" windows
 
 
 def preprocess_audio_chunk(samples):
@@ -40,14 +41,20 @@ def preprocess_audio_chunk(samples):
 
     # Transpose the matrix, because we want to use each column as a feature vector
     spectrogram = np.transpose(spectrogram)
-    return spectrogram
+
+    # Apply zero padding if the spectrogram is not large enough to fill the whole space
+    # Or crop the spectrogram if it is too large
+    vectors = np.zeros(shape=(FIXED_SOUND_LENGTH, NUM_MELS), dtype=np.float32)
+    window = spectrogram[:FIXED_SOUND_LENGTH]
+    actual_window_length = len(window)  # may be smaller than FIXED_SOUND_LENGTH
+    vectors[:actual_window_length] = window
+
+    return vectors
 
 
 if __name__ == "__main__":
     plot_dir = DATA_DIR / "plots"
     os.makedirs(plot_dir, exist_ok=True)
-
-    fixed_sound_length = 150  # in "spectrogram" windows
 
     x_sequences = []
     y_values = []
@@ -70,12 +77,7 @@ if __name__ == "__main__":
 
             sound_np = sound_np / 32767  # ends up roughly between -1 and 1
 
-            spectrogram = preprocess_audio_chunk(sound_np)
-
-            vectors = np.zeros(shape=(fixed_sound_length, NUM_MELS), dtype=np.float32)
-            window = spectrogram[:fixed_sound_length]
-            actual_window_length = len(window)  # may be smaller than fixed_sound_length
-            vectors[:actual_window_length] = window
+            vectors = preprocess_audio_chunk(sound_np)
 
             x_sequences.append(vectors)
             y_values.append(target_value)
