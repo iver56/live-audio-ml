@@ -14,20 +14,20 @@ if __name__ == "__main__":
 
     file_paths = get_file_paths(AUDIO_EVENT_DATASET_PATH / "train" / "laughter")
     for file_path in file_paths:
-        print(file_path)
+        # print(file_path)
         sample_rate, sound_np = wavfile.read(file_path)
-        print(sample_rate)
-        print(sound_np.shape, sound_np.dtype, np.amin(sound_np), np.amax(sound_np))
+        # print(sample_rate)
+        # print(sound_np.shape, sound_np.dtype, np.amin(sound_np), np.amax(sound_np))
 
         sound_np = sound_np / 32767  # ends up roughly between -1 and 1
-
-        # Normalize the sound level and squeeze (compress) the peaks a little
-        normalization_value = np.percentile(np.abs(sound_np), 75)
-        sound_np = np.tanh(sound_np / normalization_value)
 
         spectrogram = librosa.feature.melspectrogram(
             y=sound_np, sr=sample_rate, n_mels=100, power=1.0
         )
-        plot_matrix(
-            spectrogram, output_image_path=plot_dir / "{}.png".format(file_path.stem)
-        )
+
+        # Normalize the sound level and squeeze (compress) the peaks a little
+        normalization_value = np.percentile(spectrogram, 90)
+        spectrogram = np.tanh(spectrogram / normalization_value)
+
+        print(np.amin(spectrogram), np.amax(spectrogram))
+        plot_matrix(spectrogram, output_image_path=plot_dir / "{}.png".format(file_path.stem))
