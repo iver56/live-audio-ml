@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     model = get_tcn_model(input_vector_size)
 
-    model.fit(x_sequences, y_values, epochs=25, validation_split=0.2)
+    model.fit(x_sequences, y_values, epochs=25, validation_split=0.2, shuffle=True)
 
     os.makedirs(DATA_DIR / "models", exist_ok=True)
 
