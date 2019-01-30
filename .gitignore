@@ -110,3 +110,5 @@ venv.bak/
 ml/settings/local.py
 
 data/plots/**/*.png
+data/AudioEventDataset/**/*.wav
+data/AudioEventDataset/readme.txt
