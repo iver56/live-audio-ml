@@ -13,6 +13,8 @@ dependencies:
       - asciimatics==1.9.0
       - black
       - colorama==0.3.9
+      - Keras==2.2.4
+      - keras-tcn==2.3.5
       - librosa==0.6.0
       - numpy>=1.14.1,<=1.16
       - Pillow>=5.1.0,<=5.4.0
