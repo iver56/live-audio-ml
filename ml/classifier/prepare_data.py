@@ -10,12 +10,44 @@ from ml.classifier.categories import CATEGORIES, is_laughter_category
 from ml.settings import AUDIO_EVENT_DATASET_PATH, DATA_DIR, SAMPLE_RATE
 from ml.utils.filename import get_file_paths
 
+NUM_MELS = 100
+FFT_WINDOW_SIZE = 2048
+HOP_LENGTH = 512  # AKA stride
+
+
+def preprocess_audio_chunk(samples):
+    """
+    :param samples: numpy array of audio samples between -1 and 1.
+    :return:
+    """
+    assert len(samples) >= FFT_WINDOW_SIZE
+
+    spectrogram = librosa.feature.melspectrogram(
+        y=samples,
+        sr=SAMPLE_RATE,
+        n_mels=NUM_MELS,
+        power=1.0,
+        n_fft=FFT_WINDOW_SIZE,
+        hop_length=HOP_LENGTH,
+    )
+
+    # Normalize the sound level and squeeze (compress) the peaks a little
+    normalization_value = np.percentile(spectrogram, 90)
+    spectrogram = np.tanh(spectrogram / normalization_value)
+
+    # print(np.amin(spectrogram), np.amax(spectrogram))
+    # plot_matrix(spectrogram, output_image_path=plot_dir / "{}.png".format(file_path.stem))
+
+    # Transpose the matrix, because we want to use each column as a feature vector
+    spectrogram = np.transpose(spectrogram)
+    return spectrogram
+
+
 if __name__ == "__main__":
     plot_dir = DATA_DIR / "plots"
     os.makedirs(plot_dir, exist_ok=True)
 
     fixed_sound_length = 150  # in "spectrogram" windows
-    num_mels = 100
 
     x_sequences = []
     y_values = []
@@ -38,21 +70,9 @@ if __name__ == "__main__":
 
             sound_np = sound_np / 32767  # ends up roughly between -1 and 1
 
-            spectrogram = librosa.feature.melspectrogram(
-                y=sound_np, sr=sample_rate, n_mels=num_mels, power=1.0
-            )
+            spectrogram = preprocess_audio_chunk(sound_np)
 
-            # Normalize the sound level and squeeze (compress) the peaks a little
-            normalization_value = np.percentile(spectrogram, 90)
-            spectrogram = np.tanh(spectrogram / normalization_value)
-
-            # print(np.amin(spectrogram), np.amax(spectrogram))
-            # plot_matrix(spectrogram, output_image_path=plot_dir / "{}.png".format(file_path.stem))
-
-            # Transpose the matrix, because we want to use each column as a feature vector
-            spectrogram = np.transpose(spectrogram)
-
-            vectors = np.zeros(shape=(fixed_sound_length, num_mels), dtype=np.float32)
+            vectors = np.zeros(shape=(fixed_sound_length, NUM_MELS), dtype=np.float32)
             window = spectrogram[:fixed_sound_length]
             actual_window_length = len(window)  # may be smaller than fixed_sound_length
             vectors[:actual_window_length] = window
