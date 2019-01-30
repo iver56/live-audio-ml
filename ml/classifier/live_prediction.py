@@ -1,3 +1,4 @@
+import collections
 import math
 import os
 import struct
@@ -13,14 +14,11 @@ from ml.classifier.prepare_data import (
     FIXED_SOUND_LENGTH,
 )
 from ml.settings import SAMPLE_RATE, DATA_DIR
-import collections
-
-from ml.utils.plot import plot_matrix
 
 SAMPLES_PER_CHUNK = 2048
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RECORD_SECONDS = 50
+RECORD_SECONDS = 5000
 
 p = pyaudio.PyAudio()
 
