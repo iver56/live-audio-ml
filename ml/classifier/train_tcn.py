@@ -1,6 +1,5 @@
 import os
 
-import joblib
 from keras.layers import Dense
 from keras.models import Input, Model
 from keras.optimizers import Adam
@@ -37,24 +36,21 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learn
 
 
 if __name__ == "__main__":
-    data = joblib.load(os.path.join(DATA_DIR / "prepared_dataset", "dataset.pkl"))
-    x_sequences = data["x_sequences"]
-    y_values = data["y_values"]
-
-    n_timesteps = len(x_sequences[0])
-    input_vector_size = len(x_sequences[0][0])
-
-    model = get_tcn_model(input_vector_size)
-
     train_paths = get_train_paths()
     train_generator = sound_example_generator(train_paths)
+    train_sample_batch_x, train_sample_batch_y = next(train_generator)
+    n_timesteps = len(train_sample_batch_x[0])
+    input_vector_size = len(train_sample_batch_x[0][0])
+
     validation_paths = get_validation_paths()
     validation_generator = sound_example_generator(validation_paths)
+
+    model = get_tcn_model(input_vector_size)
 
     model.fit_generator(
         train_generator,
         validation_data=validation_generator,
-        validation_steps=64,
+        validation_steps=32,
         steps_per_epoch=128,
         epochs=12,
         shuffle=False,

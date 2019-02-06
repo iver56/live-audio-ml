@@ -33,7 +33,9 @@ def get_validation_paths():
     return sound_file_paths
 
 
-def sound_example_generator(sound_file_paths, batch_size=8, augment=True, save_augmented_images_to_path=None):
+def sound_example_generator(
+    sound_file_paths, batch_size=8, augment=True, save_augmented_images_to_path=None
+):
     if save_augmented_images_to_path:
         os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
