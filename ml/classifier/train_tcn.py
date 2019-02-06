@@ -1,13 +1,17 @@
 import os
-import joblib
 
-from ml.classifier.data_generator import sound_example_generator
-from ml.settings import DATA_DIR
+import joblib
 from keras.layers import Dense
 from keras.models import Input, Model
 from keras.optimizers import Adam
-
 from tcn import TCN
+
+from ml.classifier.data_generator import (
+    sound_example_generator,
+    get_train_paths,
+    get_validation_paths,
+)
+from ml.settings import DATA_DIR
 
 
 def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learning_rate=0.002):
@@ -16,7 +20,7 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learn
         return_sequences=False,
         nb_filters=int(num_filters),
         dilations=[1, 2, 4, 8, 16, 32, 64],
-        nb_stacks=2
+        nb_stacks=2,
     )(model_input)
     model_output = Dense(target_vector_size, activation="sigmoid")(model_output)
 
@@ -42,9 +46,19 @@ if __name__ == "__main__":
 
     model = get_tcn_model(input_vector_size)
 
-    generator = sound_example_generator()
+    train_paths = get_train_paths()
+    train_generator = sound_example_generator(train_paths)
+    validation_paths = get_validation_paths()
+    validation_generator = sound_example_generator(validation_paths)
 
-    model.fit_generator(generator, steps_per_epoch=128, epochs=12, shuffle=False)
+    model.fit_generator(
+        train_generator,
+        validation_data=validation_generator,
+        validation_steps=20,
+        steps_per_epoch=128,
+        epochs=12,
+        shuffle=False,
+    )
 
     os.makedirs(DATA_DIR / "models", exist_ok=True)
 

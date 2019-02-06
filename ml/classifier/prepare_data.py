@@ -1,3 +1,4 @@
+import functools
 import os
 
 import joblib
@@ -52,6 +53,7 @@ def preprocess_audio_chunk(samples):
     return vectors
 
 
+@functools.lru_cache(maxsize=9001)
 def load_wav_file(sound_file_path):
     sample_rate, sound_np = wavfile.read(sound_file_path)
     if sample_rate != SAMPLE_RATE:
