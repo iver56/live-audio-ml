@@ -4,6 +4,7 @@ CATEGORIES = (
     "applause",
     "bird",
     "car",
+    "cat",
     "child",
     "church_bell",
     "crowd",
