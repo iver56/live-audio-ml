@@ -48,7 +48,7 @@ if __name__ == "__main__":
         train_generator,
         validation_data=validation_generator,
         validation_steps=32,
-        steps_per_epoch=128,
+        steps_per_epoch=192,
         epochs=12,
         shuffle=False,
     )
