@@ -52,6 +52,19 @@ def preprocess_audio_chunk(samples):
     return vectors
 
 
+def load_wav_file(sound_file_path):
+    sample_rate, sound_np = wavfile.read(sound_file_path)
+    if sample_rate != SAMPLE_RATE:
+        raise Exception(
+            "Unexpected sample rate {} (expected {})".format(
+                sample_rate, SAMPLE_RATE
+            )
+        )
+
+    sound_np = sound_np / 32767  # ends up roughly between -1 and 1
+    return sound_np
+
+
 if __name__ == "__main__":
     plot_dir = DATA_DIR / "plots"
     os.makedirs(plot_dir, exist_ok=True)
@@ -64,18 +77,7 @@ if __name__ == "__main__":
         target_value = 1 if is_laughter_category(category) else 0
 
         for file_path in file_paths:
-            # print(file_path)
-            sample_rate, sound_np = wavfile.read(file_path)
-            if sample_rate != SAMPLE_RATE:
-                print(
-                    "Skipped due to unexpected sample rate {} (expected {})".format(
-                        sample_rate, SAMPLE_RATE
-                    )
-                )
-
-            # print(sound_np.shape, sound_np.dtype, np.amin(sound_np), np.amax(sound_np))
-
-            sound_np = sound_np / 32767  # ends up roughly between -1 and 1
+            sound_np = load_wav_file(file_path)
 
             vectors = preprocess_audio_chunk(sound_np)
 

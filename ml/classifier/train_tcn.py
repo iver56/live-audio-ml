@@ -1,6 +1,7 @@
 import os
 import joblib
 
+from ml.classifier.data_generator import sound_example_generator
 from ml.settings import DATA_DIR
 from keras.layers import Dense
 from keras.models import Input, Model
@@ -41,7 +42,9 @@ if __name__ == "__main__":
 
     model = get_tcn_model(input_vector_size)
 
-    model.fit(x_sequences, y_values, epochs=25, validation_split=0.2, shuffle=True)
+    generator = sound_example_generator()
+
+    model.fit_generator(generator, steps_per_epoch=128, epochs=12, shuffle=False)
 
     os.makedirs(DATA_DIR / "models", exist_ok=True)
 
