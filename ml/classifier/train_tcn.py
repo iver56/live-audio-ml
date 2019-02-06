@@ -54,7 +54,7 @@ if __name__ == "__main__":
     model.fit_generator(
         train_generator,
         validation_data=validation_generator,
-        validation_steps=20,
+        validation_steps=64,
         steps_per_epoch=128,
         epochs=12,
         shuffle=False,
