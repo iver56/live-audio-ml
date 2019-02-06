@@ -20,4 +20,5 @@ dependencies:
       - numpy>=1.14.1,<=1.16
       - Pillow>=5.1.0,<=5.4.0
       - PyAudio==0.2.11
+      - pygame==1.9.4
       - tqdm==4.23.4
