@@ -6,6 +6,7 @@ BASE_DIR = Path(
 )
 DATA_DIR = BASE_DIR / "data"
 AUDIO_EVENT_DATASET_PATH = DATA_DIR / "AudioEventDataset"
+CUSTOM_AUDIO_SET_DATA_PATH = DATA_DIR / "customDataset"
 
 SAMPLE_RATE = 16000
 
