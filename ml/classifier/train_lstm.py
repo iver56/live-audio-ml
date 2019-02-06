@@ -59,5 +59,5 @@ if __name__ == "__main__":
 
     os.makedirs(DATA_DIR / "models", exist_ok=True)
 
-    model.save(os.path.join(DATA_DIR / "models", "tcn.h5"))
+    model.save(os.path.join(DATA_DIR / "models", "lstm.h5"))
     print("Model is saved")
