@@ -4,7 +4,12 @@ import random
 import numpy as np
 
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
-from ml.classifier.prepare_data import load_wav_file, preprocess_audio_chunk
+from ml.classifier.prepare_data import (
+    load_wav_file,
+    preprocess_audio_chunk,
+    FIXED_SOUND_LENGTH,
+    NUM_MELS,
+)
 from ml.settings import AUDIO_EVENT_DATASET_PATH
 from ml.utils.filename import get_file_paths
 
@@ -34,7 +39,13 @@ def get_validation_paths():
 
 
 def sound_example_generator(
-    sound_file_paths, batch_size=8, augment=True, save_augmented_images_to_path=None
+    sound_file_paths,
+    batch_size=8,
+    augment=True,
+    save_augmented_images_to_path=None,
+    fixed_sound_length=FIXED_SOUND_LENGTH,
+    num_mels=NUM_MELS,
+    preprocessing_fn=None,
 ):
     if save_augmented_images_to_path:
         os.makedirs(save_augmented_images_to_path, exist_ok=True)
@@ -57,12 +68,17 @@ def sound_example_generator(
             if augment:
                 pass  # TODO: Apply data augmentation
 
-            vectors = preprocess_audio_chunk(sound_np)
+            vectors = preprocess_audio_chunk(
+                sound_np, fixed_sound_length=fixed_sound_length, num_mels=num_mels
+            )
 
             x.append(vectors)
             y.append(target)
 
         x = np.array(x)
         y = np.array(y)
+
+        if preprocessing_fn:
+            x = preprocessing_fn(x)
 
         yield x, y

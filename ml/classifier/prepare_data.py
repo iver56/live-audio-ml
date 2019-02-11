@@ -17,7 +17,7 @@ HOP_LENGTH = 512  # AKA stride
 FIXED_SOUND_LENGTH = 150  # in "spectrogram" windows
 
 
-def preprocess_audio_chunk(samples):
+def preprocess_audio_chunk(samples, fixed_sound_length=FIXED_SOUND_LENGTH, num_mels=NUM_MELS):
     """
     :param samples: numpy array of audio samples between -1 and 1.
     :return:
@@ -27,7 +27,7 @@ def preprocess_audio_chunk(samples):
     spectrogram = librosa.feature.melspectrogram(
         y=samples,
         sr=SAMPLE_RATE,
-        n_mels=NUM_MELS,
+        n_mels=num_mels,
         power=1.0,
         n_fft=FFT_WINDOW_SIZE,
         hop_length=HOP_LENGTH,
@@ -45,8 +45,8 @@ def preprocess_audio_chunk(samples):
 
     # Apply zero padding if the spectrogram is not large enough to fill the whole space
     # Or crop the spectrogram if it is too large
-    vectors = np.zeros(shape=(FIXED_SOUND_LENGTH, NUM_MELS), dtype=np.float32)
-    window = spectrogram[:FIXED_SOUND_LENGTH]
+    vectors = np.zeros(shape=(fixed_sound_length, num_mels), dtype=np.float32)
+    window = spectrogram[:fixed_sound_length]
     actual_window_length = len(window)  # may be smaller than FIXED_SOUND_LENGTH
     vectors[:actual_window_length] = window
 
