@@ -48,7 +48,7 @@ def preprocess_audio_chunk(samples, fixed_sound_length=FIXED_SOUND_LENGTH, num_m
     vectors = np.zeros(shape=(fixed_sound_length, num_mels), dtype=np.float32)
     window = spectrogram[:fixed_sound_length]
     actual_window_length = len(window)  # may be smaller than FIXED_SOUND_LENGTH
-    vectors[:actual_window_length] = window
+    vectors[-actual_window_length:] = window
 
     return vectors
 

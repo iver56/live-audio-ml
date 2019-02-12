@@ -34,13 +34,13 @@ def get_lstm_model(input_vector_size, target_vector_size=1, dropout0=0.1, learni
 
 if __name__ == "__main__":
     train_paths = get_train_paths()
-    train_generator = sound_example_generator(train_paths, fixed_sound_length=500)
+    train_generator = sound_example_generator(train_paths, fixed_sound_length=300, num_mels=20)
     train_sample_batch_x, train_sample_batch_y = next(train_generator)
     n_timesteps = len(train_sample_batch_x[0])
     input_vector_size = len(train_sample_batch_x[0][0])
 
     validation_paths = get_validation_paths()
-    validation_generator = sound_example_generator(validation_paths, fixed_sound_length=500)
+    validation_generator = sound_example_generator(validation_paths, fixed_sound_length=300, num_mels=20)
 
     model = get_lstm_model(input_vector_size)
 
