@@ -31,7 +31,7 @@ def preprocess_mobilenet_input(x):
 
 def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     model = MobileNetV2(
-        alpha=0.75,
+        alpha=0.5,
         weights="imagenet",
         include_top=False,
         input_shape=(img_width, img_height, 3),
@@ -53,7 +53,7 @@ def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     # Compile the model
     model_final.compile(
         loss="binary_crossentropy",
-        optimizer=optimizers.SGD(lr=0.001, momentum=0.9),
+        optimizer=optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True),
         metrics=["binary_accuracy"],
     )
 
@@ -94,9 +94,9 @@ if __name__ == "__main__":
     model.fit_generator(
         train_generator,
         validation_data=validation_generator,
-        validation_steps=32,
+        validation_steps=192,
         steps_per_epoch=64,
-        epochs=7,
+        epochs=20,
         shuffle=False,
         callbacks=[model_checkpoint],
     )
