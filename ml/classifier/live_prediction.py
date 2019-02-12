@@ -7,12 +7,9 @@ import numpy as np
 import pyaudio
 from keras.engine.saving import load_model
 
-from ml.classifier.prepare_data import (
-    preprocess_audio_chunk,
-    HOP_LENGTH,
-    FFT_WINDOW_SIZE,
-    FIXED_SOUND_LENGTH,
-)
+from ml.classifier.prepare_data import preprocess_audio_chunk, HOP_LENGTH, FFT_WINDOW_SIZE
+from ml.classifier.train_mobilenet import fixed_sound_length, num_mels, \
+    preprocess_mobilenet_input
 from ml.settings import SAMPLE_RATE, DATA_DIR
 
 SAMPLES_PER_CHUNK = 2048
@@ -28,7 +25,7 @@ BIT_DEPTH = BYTES_PER_SAMPLE * 8
 
 def stream_audio():
     samples_ring_buffer = collections.deque(
-        maxlen=int(math.ceil((FIXED_SOUND_LENGTH + FFT_WINDOW_SIZE / HOP_LENGTH) * HOP_LENGTH))
+        maxlen=int(math.ceil((fixed_sound_length + FFT_WINDOW_SIZE / HOP_LENGTH) * HOP_LENGTH))
     )
 
     stream = p.open(
@@ -51,11 +48,16 @@ def stream_audio():
 
         samples = np.array(samples_ring_buffer)
 
-        spectrogram = preprocess_audio_chunk(samples)
+        spectrogram = preprocess_audio_chunk(
+            samples, fixed_sound_length=fixed_sound_length, num_mels=num_mels
+        )
         # plot_matrix(spectrogram, output_image_path=plot_dir / "{0:<5}.png".format(i))
 
-        y_predicted = model.predict(np.array([spectrogram]))
-        print('{:.1f}'.format(float(y_predicted)))
+        x = np.array([spectrogram])
+        x = preprocess_mobilenet_input(x)
+
+        y_predicted = float(model.predict(x)[0])
+        print("{:.1f} {}".format(y_predicted, '#' * int(20 * y_predicted)))
 
     stream.stop_stream()
     stream.close()
@@ -66,6 +68,6 @@ if __name__ == "__main__":
     plot_dir = DATA_DIR / "plots"
     os.makedirs(plot_dir, exist_ok=True)
 
-    model = load_model(os.path.join(DATA_DIR / 'models', 'tcn.h5'))
+    model = load_model(os.path.join(DATA_DIR / "models", "mobilenet_v2.h5"))
 
     stream_audio()

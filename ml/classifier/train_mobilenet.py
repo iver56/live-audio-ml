@@ -15,6 +15,10 @@ from ml.classifier.data_generator import (
 from ml.settings import DATA_DIR
 
 
+num_mels = img_width = 128
+fixed_sound_length = img_height = 128
+
+
 def preprocess_mobilenet_input(x):
     """
     :param x: 3D tensor of spectrograms with values in the range [0, 1]
@@ -64,9 +68,6 @@ def get_mobilenet_model(img_width, img_height, target_vector_size=1):
 
 
 if __name__ == "__main__":
-    num_mels = img_width = 128
-    fixed_sound_length = img_height = 128
-
     train_paths = get_train_paths()
     train_generator = sound_example_generator(
         train_paths,
