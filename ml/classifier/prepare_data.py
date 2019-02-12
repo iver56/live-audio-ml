@@ -22,7 +22,14 @@ def preprocess_audio_chunk(samples, fixed_sound_length=FIXED_SOUND_LENGTH, num_m
     :param samples: numpy array of audio samples between -1 and 1.
     :return:
     """
-    assert len(samples) >= FFT_WINDOW_SIZE
+    num_samples = len(samples)
+    assert num_samples >= FFT_WINDOW_SIZE
+
+    max_num_samples = fixed_sound_length * HOP_LENGTH + FFT_WINDOW_SIZE
+    if num_samples > max_num_samples:
+        # If we have more samples than we need, cut off those that we are not going to use.
+        # We do this to avoid unneeded computation
+        samples = samples[:max_num_samples]
 
     spectrogram = librosa.feature.melspectrogram(
         y=samples,
