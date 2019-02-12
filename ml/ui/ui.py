@@ -43,15 +43,15 @@ def main_ui_loop():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_0:
+                if event.key == pygame.K_1:
                     filepath = CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER / "{}.wav".format(uuid.uuid4())
                     save_sound_to_file(filepath, samples_ring_buffer)
-                    print('Saved fil to laughter dir')
+                    print('Saved file to laughter dir')
 
-                if event.key == pygame.K_1:
+                if event.key == pygame.K_0:
                     filepath = CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER / "{}.wav".format(uuid.uuid4())
                     save_sound_to_file(filepath, samples_ring_buffer)
-                    print('Saved fil to NOT laughter dir')
+                    print('Saved file to NOT laughter dir')
 
 
 def save_sound_to_file(file_path, samples_ring_buffer):
