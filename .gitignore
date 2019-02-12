@@ -114,3 +114,5 @@ data/AudioEventDataset/**/*.wav
 data/AudioEventDataset/readme.txt
 data/prepared_dataset/*.pkl
 data/models/*.h5
+data/customDatasetLaughter/**/*.wav
+data/customDatasetNotLaughter/**/*.wav
