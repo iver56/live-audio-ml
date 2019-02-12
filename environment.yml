@@ -7,7 +7,7 @@ dependencies:
   - matplotlib>=2.2.0,<3
   - mkl>=2018,<2019
   - pip>=9.0.1,<=18.1
-  - python=3.6.*
+  - python=3.6.6
   - scipy=1
   - tensorflow-gpu=1.12
   - pip:
