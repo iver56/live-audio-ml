@@ -60,7 +60,7 @@ if __name__ == "__main__":
     model.fit_generator(
         train_generator,
         validation_data=validation_generator,
-        validation_steps=32,
+        validation_steps=192,
         steps_per_epoch=192,
         epochs=50,
         shuffle=False,
