@@ -84,6 +84,8 @@ if __name__ == "__main__":
 
     model = get_mobilenet_model(img_width, img_height)
 
+    os.makedirs(DATA_DIR / "models", exist_ok=True)
+
     model_save_path = os.path.join(DATA_DIR / "models", "mobilenet_v2.h5")
     model_checkpoint = ModelCheckpoint(
         model_save_path, monitor="val_binary_accuracy", verbose=1, save_best_only=True
@@ -98,5 +100,3 @@ if __name__ == "__main__":
         shuffle=False,
         callbacks=[model_checkpoint],
     )
-
-    os.makedirs(DATA_DIR / "models", exist_ok=True)
