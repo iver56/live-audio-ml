@@ -6,6 +6,8 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 
+from audiomentations import Compose, AddGaussianNoise
+
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
 from ml.classifier.prepare_data import (
     load_wav_file,
@@ -13,7 +15,7 @@ from ml.classifier.prepare_data import (
     FIXED_SOUND_LENGTH,
     NUM_MELS,
 )
-from ml.settings import AUDIO_EVENT_DATASET_PATH
+from ml.settings import AUDIO_EVENT_DATASET_PATH, SAMPLE_RATE
 from ml.utils.filename import get_file_paths
 
 LAUGHTER_CLASS_RATIO = 0.3
@@ -53,6 +55,10 @@ def sound_example_generator(
     if save_augmented_images_to_path:
         os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
+    augmenter = Compose([
+        AddGaussianNoise(p=0.1)
+    ])
+
     while True:
         x = []
         y = []
@@ -70,7 +76,7 @@ def sound_example_generator(
             sound_np = load_wav_file(sound_file_path)
 
             if augment:
-                pass  # TODO: Apply data augmentation
+                sound_np = augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
 
             vectors = preprocess_audio_chunk(
                 sound_np, fixed_sound_length=fixed_sound_length, num_mels=num_mels
