@@ -7,9 +7,10 @@ import wave
 import pyaudio
 import pygame
 
-from ml.settings import SAMPLE_RATE, CUSTOM_AUDIO_SET_DATA_PATH
+from ml.settings import SAMPLE_RATE, CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER, CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER
 
-os.makedirs(CUSTOM_AUDIO_SET_DATA_PATH, exist_ok=True)
+os.makedirs(CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER, exist_ok=True)
+os.makedirs(CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER, exist_ok=True)
 
 p = pyaudio.PyAudio()
 SAMPLES_PER_CHUNK = 2048
@@ -43,18 +44,24 @@ def main_ui_loop():
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_0:
-                    print("Hey, you pressed the key, '0'!")
-                    filepath = CUSTOM_AUDIO_SET_DATA_PATH / "{}.wav".format(uuid.uuid4())
-                    waveFile = wave.open(str(filepath), "wb")
-                    waveFile.setnchannels(CHANNELS)
-                    waveFile.setsampwidth(p.get_sample_size(FORMAT))
-                    waveFile.setframerate(SAMPLE_RATE)
-                    waveFile.writeframes(b"".join(samples_ring_buffer))
-                    waveFile.close()
-                    print("We have saved a file")
+                    filepath = CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER / "{}.wav".format(uuid.uuid4())
+                    save_sound_to_file(filepath, samples_ring_buffer)
+                    print('Saved fil to laughter dir')
 
                 if event.key == pygame.K_1:
-                    print("Doing whatever")
+                    filepath = CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER / "{}.wav".format(uuid.uuid4())
+                    save_sound_to_file(filepath, samples_ring_buffer)
+                    print('Saved fil to NOT laughter dir')
+
+
+def save_sound_to_file(file_path, samples_ring_buffer):
+    waveFile = wave.open(str(file_path), "wb")
+    waveFile.setnchannels(CHANNELS)
+    waveFile.setsampwidth(p.get_sample_size(FORMAT))
+    waveFile.setframerate(SAMPLE_RATE)
+    waveFile.writeframes(b"".join(samples_ring_buffer))
+    waveFile.close()
+
 
 
 if __name__ == "__main__":
