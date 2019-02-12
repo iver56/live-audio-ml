@@ -1,7 +1,10 @@
 import os
 import random
+import uuid
 
 import numpy as np
+from PIL import Image
+from pathlib import Path
 
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
 from ml.classifier.prepare_data import (
@@ -58,6 +61,7 @@ def sound_example_generator(
             if random.random() < LAUGHTER_CLASS_RATIO:
                 sound_file_path = random.choice(sound_file_paths["laughter"])
                 target = 1  # laughter
+
             else:
                 category = random.choice(NON_LAUGHTER_CATEGORIES)
                 sound_file_path = random.choice(sound_file_paths[category])
@@ -71,6 +75,18 @@ def sound_example_generator(
             vectors = preprocess_audio_chunk(
                 sound_np, fixed_sound_length=fixed_sound_length, num_mels=num_mels
             )
+            if save_augmented_images_to_path:
+                # Save the augmented image(vectors) to path
+                generated_uuid = uuid.uuid4()
+                input_image_pil = Image.fromarray((vectors * 255).astype(np.uint8))
+                input_image_pil.save(
+                    os.path.join(
+                        save_augmented_images_to_path,
+                        "{}__{}_input.png".format(
+                            Path(sound_file_path).stem, generated_uuid
+                        ),
+                    )
+                )
 
             x.append(vectors)
             y.append(target)
