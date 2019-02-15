@@ -12,9 +12,9 @@ dependencies:
   - tensorflow-gpu=1.12
   - pip:
       - asciimatics==1.9.0
+      - audiomentations==0.1.0
       - black
       - colorama==0.3.9
-      - git+https://github.com/iver56/audiomentations.git
       - Keras==2.2.4
       - keras-tcn==2.3.5
       - librosa==0.6.0
