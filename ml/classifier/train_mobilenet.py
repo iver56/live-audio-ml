@@ -82,6 +82,7 @@ if __name__ == "__main__":
         num_mels=num_mels,
         fixed_sound_length=fixed_sound_length,
         preprocessing_fn=preprocess_mobilenet_input,
+        augment=False
     )
 
     model = get_mobilenet_model(img_width, img_height)

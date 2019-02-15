@@ -43,7 +43,7 @@ if __name__ == "__main__":
     input_vector_size = len(train_sample_batch_x[0][0])
 
     validation_paths = get_validation_paths()
-    validation_generator = sound_example_generator(validation_paths)
+    validation_generator = sound_example_generator(validation_paths, augment=False)
 
     model = get_tcn_model(input_vector_size)
 

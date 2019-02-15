@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     validation_paths = get_validation_paths()
     validation_generator = sound_example_generator(
-        validation_paths, fixed_sound_length=fixed_sound_length, num_mels=20
+        validation_paths, fixed_sound_length=fixed_sound_length, num_mels=20, augment=False
     )
 
     model = get_lstm_model(input_vector_size)
