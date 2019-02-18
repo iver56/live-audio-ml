@@ -56,7 +56,7 @@ def sound_example_generator(
         os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
     augmenter = Compose([
-        AddGaussianNoise(p=0.1)
+        AddGaussianNoise(p=0.5)
     ])
 
     while True:
