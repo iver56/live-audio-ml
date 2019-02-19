@@ -8,10 +8,9 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.models import Model
 
 from ml.classifier.data_generator import (
-    sound_example_generator,
     get_train_paths,
     get_validation_paths,
-)
+    SoundExampleGenerator)
 from ml.settings import DATA_DIR
 
 
@@ -69,7 +68,7 @@ def get_mobilenet_model(img_width, img_height, target_vector_size=1):
 
 if __name__ == "__main__":
     train_paths = get_train_paths()
-    train_generator = sound_example_generator(
+    train_generator = SoundExampleGenerator(
         train_paths,
         num_mels=num_mels,
         fixed_sound_length=fixed_sound_length,
@@ -77,7 +76,7 @@ if __name__ == "__main__":
     )
 
     validation_paths = get_validation_paths()
-    validation_generator = sound_example_generator(
+    validation_generator = SoundExampleGenerator(
         validation_paths,
         num_mels=num_mels,
         fixed_sound_length=fixed_sound_length,

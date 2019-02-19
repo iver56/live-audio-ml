@@ -6,10 +6,9 @@ from keras.layers import Dense, TimeDistributed, Dropout, Activation, CuDNNLSTM
 from keras.optimizers import RMSprop
 
 from ml.classifier.data_generator import (
-    sound_example_generator,
     get_train_paths,
     get_validation_paths,
-)
+    SoundExampleGenerator)
 from ml.settings import DATA_DIR
 
 
@@ -36,7 +35,7 @@ def get_lstm_model(input_vector_size, target_vector_size=1, dropout0=0.1, learni
 if __name__ == "__main__":
     train_paths = get_train_paths()
     fixed_sound_length = 150
-    train_generator = sound_example_generator(
+    train_generator = SoundExampleGenerator(
         train_paths, fixed_sound_length=fixed_sound_length, num_mels=20
     )
     train_sample_batch_x, train_sample_batch_y = next(train_generator)
@@ -44,7 +43,7 @@ if __name__ == "__main__":
     input_vector_size = len(train_sample_batch_x[0][0])
 
     validation_paths = get_validation_paths()
-    validation_generator = sound_example_generator(
+    validation_generator = SoundExampleGenerator(
         validation_paths, fixed_sound_length=fixed_sound_length, num_mels=20, augment=False
     )
 

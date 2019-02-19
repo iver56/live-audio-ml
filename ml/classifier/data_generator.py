@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import uuid
@@ -7,6 +8,7 @@ from PIL import Image
 from pathlib import Path
 
 from audiomentations import Compose, AddGaussianNoise, TimeStretch, PitchShift
+from keras.utils import Sequence
 
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
 from ml.classifier.prepare_data import (
@@ -43,53 +45,69 @@ def get_validation_paths():
     return sound_file_paths
 
 
-def sound_example_generator(
-    sound_file_paths,
-    batch_size=8,
-    augment=True,
-    save_augmented_images_to_path=None,
-    fixed_sound_length=FIXED_SOUND_LENGTH,
-    num_mels=NUM_MELS,
-    preprocessing_fn=None,
-):
-    if save_augmented_images_to_path:
-        os.makedirs(save_augmented_images_to_path, exist_ok=True)
+class SoundExampleGenerator(Sequence):
+    def __init__(
+        self,
+        sound_file_paths,
+        batch_size=8,
+        augment=True,
+        save_augmented_images_to_path=None,
+        fixed_sound_length=FIXED_SOUND_LENGTH,
+        num_mels=NUM_MELS,
+        preprocessing_fn=None,
+    ):
+        self.sound_file_paths = sound_file_paths
+        self.batch_size = batch_size
+        self.augment = augment
+        self.save_augmented_images_to_path = save_augmented_images_to_path
+        self.fixed_sound_length = fixed_sound_length
+        self.num_mels = num_mels
+        self.preprocessing_fn = preprocessing_fn
 
-    augmenter = Compose([
-        AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
-        TimeStretch(min_rate=0.8, max_rate=1.25, p=0.5),
-        PitchShift(min_semitones=-4, max_semitones=4, p=0.5),
-    ])
+        if save_augmented_images_to_path:
+            os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
-    while True:
+        self.augmenter = Compose(
+            [
+                AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
+                TimeStretch(min_rate=0.8, max_rate=1.25, p=0.5),
+                PitchShift(min_semitones=-4, max_semitones=4, p=0.5),
+            ]
+        )
+
+    def __len__(self):
+        return math.ceil(len(self.sound_file_paths) / self.batch_size)
+
+    def __getitem__(self, idx):
+        # Note: The returned batch does not depend on idx at the moment
         x = []
         y = []
-        for _ in range(batch_size):
+        for _ in range(self.batch_size):
 
             if random.random() < LAUGHTER_CLASS_RATIO:
-                sound_file_path = random.choice(sound_file_paths["laughter"])
+                sound_file_path = random.choice(self.sound_file_paths["laughter"])
                 target = 1  # laughter
 
             else:
                 category = random.choice(NON_LAUGHTER_CATEGORIES)
-                sound_file_path = random.choice(sound_file_paths[category])
+                sound_file_path = random.choice(self.sound_file_paths[category])
                 target = 0  # not laughter
 
             sound_np = load_wav_file(sound_file_path)
 
-            if augment:
-                sound_np = augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
+            if self.augment:
+                sound_np = self.augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
 
             vectors = preprocess_audio_chunk(
-                sound_np, fixed_sound_length=fixed_sound_length, num_mels=num_mels
+                sound_np, fixed_sound_length=self.fixed_sound_length, num_mels=self.num_mels
             )
-            if save_augmented_images_to_path:
+            if self.save_augmented_images_to_path:
                 # Save the augmented image(vectors) to path
                 generated_uuid = uuid.uuid4()
                 input_image_pil = Image.fromarray((vectors * 255).astype(np.uint8))
                 input_image_pil.save(
                     os.path.join(
-                        save_augmented_images_to_path,
+                        self.save_augmented_images_to_path,
                         "{}__{}_input.png".format(
                             Path(sound_file_path).stem, generated_uuid
                         ),
@@ -102,7 +120,7 @@ def sound_example_generator(
         x = np.array(x)
         y = np.array(y)
 
-        if preprocessing_fn:
-            x = preprocessing_fn(x)
+        if self.preprocessing_fn:
+            x = self.preprocessing_fn(x)
 
-        yield x, y
+        return x, y

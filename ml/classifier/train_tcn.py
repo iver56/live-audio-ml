@@ -6,10 +6,9 @@ from keras.optimizers import Adam
 from tcn import TCN
 
 from ml.classifier.data_generator import (
-    sound_example_generator,
     get_train_paths,
     get_validation_paths,
-)
+    SoundExampleGenerator)
 from ml.settings import DATA_DIR
 
 
@@ -37,13 +36,13 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learn
 
 if __name__ == "__main__":
     train_paths = get_train_paths()
-    train_generator = sound_example_generator(train_paths)
+    train_generator = SoundExampleGenerator(train_paths)
     train_sample_batch_x, train_sample_batch_y = next(train_generator)
     n_timesteps = len(train_sample_batch_x[0])
     input_vector_size = len(train_sample_batch_x[0][0])
 
     validation_paths = get_validation_paths()
-    validation_generator = sound_example_generator(validation_paths, augment=False)
+    validation_generator = SoundExampleGenerator(validation_paths, augment=False)
 
     model = get_tcn_model(input_vector_size)
 
