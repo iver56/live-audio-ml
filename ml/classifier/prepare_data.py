@@ -42,7 +42,7 @@ def preprocess_audio_chunk(samples, fixed_sound_length=FIXED_SOUND_LENGTH, num_m
 
     # Normalize the sound level and squeeze (compress) the peaks a little
     normalization_value = np.percentile(spectrogram, 90)
-    spectrogram = np.tanh(spectrogram / normalization_value)
+    spectrogram = np.tanh(spectrogram / (normalization_value + 0.0001))
 
     # print(np.amin(spectrogram), np.amax(spectrogram))
     # plot_matrix(spectrogram, output_image_path=plot_dir / "{}.png".format(file_path.stem))
