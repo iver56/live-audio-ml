@@ -99,7 +99,7 @@ if __name__ == "__main__":
         validation_data=validation_generator,
         validation_steps=192,
         steps_per_epoch=64,
-        epochs=20,
+        epochs=25,
         shuffle=False,
         callbacks=[model_checkpoint],
     )
