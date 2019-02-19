@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 
-from audiomentations import Compose, AddGaussianNoise
+from audiomentations import Compose, AddGaussianNoise, TimeStretch
 
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
 from ml.classifier.prepare_data import (
@@ -56,7 +56,8 @@ def sound_example_generator(
         os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
     augmenter = Compose([
-        AddGaussianNoise(p=0.5)
+        AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
+        TimeStretch(min_rate=0.8, max_rate=1.25, p=0.5),
     ])
 
     while True:
