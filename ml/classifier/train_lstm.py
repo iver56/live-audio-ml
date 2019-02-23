@@ -26,7 +26,7 @@ def get_lstm_model(input_vector_size, target_vector_size=1, dropout0=0.1, learni
     model.compile(
         loss="binary_crossentropy",
         optimizer=RMSprop(lr=learning_rate),
-        metrics=["binary_accuracy"],
+        metrics=["acc"],
     )
     # model.summary()
     return model
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     model_save_path = os.path.join(DATA_DIR / "models", "lstm.h5")
     model_checkpoint = ModelCheckpoint(
-        model_save_path, monitor="val_binary_accuracy", verbose=1, save_best_only=True
+        model_save_path, monitor="val_acc", verbose=1, save_best_only=True
     )
 
     model.fit_generator(

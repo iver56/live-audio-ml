@@ -26,7 +26,7 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learn
     model.compile(
         optimizer=Adam(lr=learning_rate, clipnorm=1.0),
         loss="binary_crossentropy",
-        metrics=["binary_accuracy"],
+        metrics=["acc"],
     )
 
     # model.summary()

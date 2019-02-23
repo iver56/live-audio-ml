@@ -58,7 +58,7 @@ def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     model_final.compile(
         loss="binary_crossentropy",
         optimizer=optimizers.SGD(lr=0.001, momentum=0.9, nesterov=True),
-        metrics=["binary_accuracy"],
+        metrics=["acc"],
     )
 
     # model.summary()
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     model_save_path = os.path.join(DATA_DIR / "models", "mobilenet_v2.h5")
     model_checkpoint = ModelCheckpoint(
-        model_save_path, monitor="val_binary_accuracy", verbose=1, save_best_only=True
+        model_save_path, monitor="val_acc", verbose=1, save_best_only=True
     )
 
     model.fit_generator(
