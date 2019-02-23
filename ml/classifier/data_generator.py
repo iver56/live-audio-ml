@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image
 from pathlib import Path
 
-from audiomentations import Compose, AddGaussianNoise, TimeStretch, PitchShift
+from audiomentations import Compose, AddGaussianNoise, TimeStretch, PitchShift, Shift
 from keras.utils import Sequence
 
 from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
@@ -79,6 +79,7 @@ class SoundExampleGenerator(Sequence):
                 AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
                 TimeStretch(min_rate=0.8, max_rate=1.25, p=0.5),
                 PitchShift(min_semitones=-4, max_semitones=4, p=0.5),
+                Shift(min_fraction=-0.5, max_fraction=0.5, p=0.5),
             ]
         )
 
