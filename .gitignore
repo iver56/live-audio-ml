@@ -116,4 +116,3 @@ data/prepared_dataset/*.pkl
 data/models/*.h5
 data/customDatasetLaughter/**/*.wav
 data/customDatasetNotLaughter/**/*.wav
-data/batch_cache/**/*.pkl

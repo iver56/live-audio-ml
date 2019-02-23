@@ -10,9 +10,9 @@ from keras.models import Model
 from ml.classifier.data_generator import (
     get_train_paths,
     get_validation_paths,
-    SoundExampleGenerator,
-)
+    SoundExampleGenerator)
 from ml.settings import DATA_DIR
+
 
 num_mels = img_width = 128
 fixed_sound_length = img_height = 128
@@ -29,9 +29,7 @@ def preprocess_mobilenet_input(x):
     scaled_images = (2 * (x - 0.5)).astype(np.float32)
 
     # Apply the same greyscale image to all three color channels
-    rgb_canvases = np.zeros(
-        shape=(x.shape[0], x.shape[1], x.shape[2], 3), dtype=np.float32
-    )
+    rgb_canvases = np.zeros(shape=(x.shape[0], x.shape[1], x.shape[2], 3), dtype=np.float32)
     rgb_canvases[:, :, :, 0] = scaled_images
     rgb_canvases[:, :, :, 1] = scaled_images
     rgb_canvases[:, :, :, 2] = scaled_images
@@ -40,10 +38,7 @@ def preprocess_mobilenet_input(x):
 
 def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     model = MobileNetV2(
-        alpha=0.5,
-        weights="imagenet",
-        include_top=False,
-        input_shape=(img_width, img_height, 3),
+        alpha=0.5, weights="imagenet", include_top=False, input_shape=(img_width, img_height, 3)
     )
 
     # Tune all layers
@@ -86,7 +81,7 @@ if __name__ == "__main__":
         num_mels=num_mels,
         fixed_sound_length=fixed_sound_length,
         preprocessing_fn=preprocess_mobilenet_input,
-        augment=False,
+        augment=False
     )
 
     model = get_mobilenet_model(img_width, img_height)

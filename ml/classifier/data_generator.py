@@ -1,11 +1,8 @@
-import hashlib
-import json
 import math
 import os
 import random
 import uuid
 
-import joblib
 import numpy as np
 from PIL import Image
 from pathlib import Path
@@ -20,7 +17,7 @@ from ml.classifier.prepare_data import (
     FIXED_SOUND_LENGTH,
     NUM_MELS,
 )
-from ml.settings import AUDIO_EVENT_DATASET_PATH, SAMPLE_RATE, DATA_DIR
+from ml.settings import AUDIO_EVENT_DATASET_PATH, SAMPLE_RATE
 from ml.utils.filename import get_file_paths
 
 LAUGHTER_CLASS_RATIO = 0.3
@@ -58,7 +55,6 @@ class SoundExampleGenerator(Sequence):
         fixed_sound_length=FIXED_SOUND_LENGTH,
         num_mels=NUM_MELS,
         preprocessing_fn=None,
-        cache_seed=None,
     ):
         self.sound_file_paths = sound_file_paths
         self.batch_size = batch_size
@@ -71,9 +67,6 @@ class SoundExampleGenerator(Sequence):
         if save_augmented_images_to_path:
             os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
-        self.cache_dir = DATA_DIR / "batch_cache"
-        os.makedirs(self.cache_dir, exist_ok=True)
-
         self.augmenter = Compose(
             [
                 AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
@@ -83,45 +76,11 @@ class SoundExampleGenerator(Sequence):
             ]
         )
 
-        settings_dict = {
-            "sound_file_paths": {
-                category_name: [
-                    str(path) for path in self.sound_file_paths[category_name]
-                ]
-                for category_name in self.sound_file_paths
-            },
-            "batch_size": self.batch_size,
-            "augment": self.augment,
-            "fixed_sound_length": self.fixed_sound_length,
-            "num_mels": self.num_mels,
-            "preprocessing_fn_name": self.preprocessing_fn.__name__,
-            "cache_seed": cache_seed,
-        }
-        # We use settings_md5 for caching purposes
-        self.settings_md5 = hashlib.md5(
-            json.dumps(settings_dict).encode("utf-8")
-        ).hexdigest()
-
-        self.counter = 0
-
     def __len__(self):
-        num_sounds = sum(
-            len(self.sound_file_paths[category_name])
-            for category_name in self.sound_file_paths
-        )
-        return math.ceil(num_sounds / self.batch_size)
+        return math.ceil(len(self.sound_file_paths) / self.batch_size)
 
     def __getitem__(self, idx):
-        # Note: The returned batch does not depend on idx, but on self.counter
-
-        self.counter += 1
-
-        cache_file_path = self.cache_dir / "{}_{:05d}.pkl".format(
-            self.settings_md5, self.counter
-        )
-        if cache_file_path.exists():
-            return joblib.load(cache_file_path)
-
+        # Note: The returned batch does not depend on idx at the moment
         x = []
         y = []
         for _ in range(self.batch_size):
@@ -141,9 +100,7 @@ class SoundExampleGenerator(Sequence):
                 sound_np = self.augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
 
             vectors = preprocess_audio_chunk(
-                sound_np,
-                fixed_sound_length=self.fixed_sound_length,
-                num_mels=self.num_mels,
+                sound_np, fixed_sound_length=self.fixed_sound_length, num_mels=self.num_mels
             )
             if self.save_augmented_images_to_path:
                 # Save the augmented image(vectors) to path
@@ -167,9 +124,4 @@ class SoundExampleGenerator(Sequence):
         if self.preprocessing_fn:
             x = self.preprocessing_fn(x)
 
-        return_value = (x, y)
-
-        # Cache returned value
-        joblib.dump(return_value, cache_file_path, compress=True)
-
-        return return_value
+        return x, y
