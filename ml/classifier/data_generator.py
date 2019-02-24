@@ -10,14 +10,23 @@ from pathlib import Path
 from audiomentations import Compose, AddGaussianNoise, TimeStretch, PitchShift, Shift
 from keras.utils import Sequence
 
-from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES
+from ml.classifier.categories import (
+    CATEGORIES,
+    NON_LAUGHTER_CATEGORIES,
+    is_laughter_category,
+)
 from ml.classifier.prepare_data import (
     load_wav_file,
     preprocess_audio_chunk,
     FIXED_SOUND_LENGTH,
     NUM_MELS,
 )
-from ml.settings import AUDIO_EVENT_DATASET_PATH, SAMPLE_RATE
+from ml.settings import (
+    AUDIO_EVENT_DATASET_PATH,
+    SAMPLE_RATE,
+    CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER,
+    CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER,
+)
 from ml.utils.filename import get_file_paths
 
 LAUGHTER_CLASS_RATIO = 0.3
@@ -29,7 +38,13 @@ def get_train_paths():
         sound_file_paths[category] = get_file_paths(
             AUDIO_EVENT_DATASET_PATH / "train" / category
         )
-        assert len(sound_file_paths[category]) > 0
+
+    # get paths from custom dataset in addition to the freesound audio event dataset
+    custom_laughter_paths = get_file_paths(CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER)
+    sound_file_paths["laughter"] += custom_laughter_paths
+
+    custom_non_laughter_paths = get_file_paths(CUSTOM_AUDIO_SET_DATA_PATH_NOT_LAUGHTER)
+    sound_file_paths["custom_non_laughter"] = custom_non_laughter_paths
 
     return sound_file_paths
 
@@ -40,7 +55,6 @@ def get_validation_paths():
         sound_file_paths[category] = get_file_paths(
             AUDIO_EVENT_DATASET_PATH / "test", filename_prefix=category
         )
-        assert len(sound_file_paths[category]) > 0
 
     return sound_file_paths
 
@@ -64,6 +78,12 @@ class SoundExampleGenerator(Sequence):
         self.num_mels = num_mels
         self.preprocessing_fn = preprocessing_fn
 
+        self.laughter_paths = self.sound_file_paths["laughter"]
+        self.non_laughter_paths = []
+        for category in self.sound_file_paths:
+            if not is_laughter_category(category):
+                self.non_laughter_paths += self.sound_file_paths[category]
+
         if save_augmented_images_to_path:
             os.makedirs(save_augmented_images_to_path, exist_ok=True)
 
@@ -86,12 +106,11 @@ class SoundExampleGenerator(Sequence):
         for _ in range(self.batch_size):
 
             if random.random() < LAUGHTER_CLASS_RATIO:
-                sound_file_path = random.choice(self.sound_file_paths["laughter"])
+                sound_file_path = random.choice(self.laughter_paths)
                 target = 1  # laughter
 
             else:
-                category = random.choice(NON_LAUGHTER_CATEGORIES)
-                sound_file_path = random.choice(self.sound_file_paths[category])
+                sound_file_path = random.choice(self.non_laughter_paths)
                 target = 0  # not laughter
 
             sound_np = load_wav_file(sound_file_path)
@@ -100,7 +119,9 @@ class SoundExampleGenerator(Sequence):
                 sound_np = self.augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
 
             spectrogram = preprocess_audio_chunk(
-                sound_np, fixed_sound_length=self.fixed_sound_length, num_mels=self.num_mels
+                sound_np,
+                fixed_sound_length=self.fixed_sound_length,
+                num_mels=self.num_mels,
             )
             if self.save_augmented_images_to_path:
                 # Save the augmented image(vectors) to path

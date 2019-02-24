@@ -97,7 +97,7 @@ def train_model(save=True):
         preprocessing_fn=preprocess_mobilenet_input,
     )
 
-    with timer("get validation data"):
+    with timer("Get validation data"):
         validation_data = get_validation_data_batch()
 
     model = get_mobilenet_model(img_width, img_height)
