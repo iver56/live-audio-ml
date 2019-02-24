@@ -1,15 +1,10 @@
 import functools
-import os
 
-import joblib
 import librosa
 import numpy as np
 from scipy.io import wavfile
-from tqdm import tqdm
 
-from ml.classifier.categories import CATEGORIES, is_laughter_category
-from ml.settings import AUDIO_EVENT_DATASET_PATH, DATA_DIR, SAMPLE_RATE
-from ml.utils.filename import get_file_paths
+from ml.settings import SAMPLE_RATE
 
 NUM_MELS = 100
 FFT_WINDOW_SIZE = 2048
