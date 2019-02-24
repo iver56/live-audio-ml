@@ -4,7 +4,10 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.models import load_model
+from sklearn.metrics import average_precision_score
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_recall_curve
+from sklearn.utils.fixes import signature
 
 from ml.classifier.data_generator import get_validation_paths, SoundExampleGenerator
 from ml.classifier.train_mobilenet import (
@@ -91,4 +94,24 @@ if __name__ == "__main__":
         normalize=True,
         title="Normalized confusion matrix",
     )
+    plt.show()
+
+    # Plot precision-recall curve
+    plt.figure()
+    average_precision = average_precision_score(validation_y, y_predicted)
+
+    print("Average precision-recall score: {0:0.2f}".format(average_precision))
+    precision, recall, _ = precision_recall_curve(validation_y, y_predicted)
+
+    step_kwargs = (
+        {"step": "post"} if "step" in signature(plt.fill_between).parameters else {}
+    )
+    plt.step(recall, precision, color="b", alpha=0.2, where="post")
+    plt.fill_between(recall, precision, alpha=0.2, color="b", **step_kwargs)
+
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.ylim([0.0, 1.05])
+    plt.xlim([0.0, 1.0])
+    plt.title("2-class Precision-Recall curve: AP={0:0.2f}".format(average_precision))
     plt.show()
