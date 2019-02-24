@@ -112,7 +112,7 @@ def train_model(save=True):
         train_generator,
         validation_data=validation_data,
         steps_per_epoch=64,
-        epochs=25,
+        epochs=50,
         shuffle=False,
         callbacks=callbacks,
     )
