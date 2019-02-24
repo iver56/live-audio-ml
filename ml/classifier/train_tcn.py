@@ -8,11 +8,14 @@ from tcn import TCN
 from ml.classifier.data_generator import (
     get_train_paths,
     get_validation_paths,
-    SoundExampleGenerator)
+    SoundExampleGenerator,
+)
 from ml.settings import DATA_DIR
 
 
-def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learning_rate=0.002):
+def get_tcn_model(
+    input_vector_size, target_vector_size=1, num_filters=16, learning_rate=0.002
+):
     model_input = Input(shape=(None, input_vector_size))
     model_output = TCN(
         return_sequences=False,
@@ -37,19 +40,20 @@ def get_tcn_model(input_vector_size, target_vector_size=1, num_filters=16, learn
 if __name__ == "__main__":
     train_paths = get_train_paths()
     train_generator = SoundExampleGenerator(train_paths)
-    train_sample_batch_x, train_sample_batch_y = next(train_generator)
-    n_timesteps = len(train_sample_batch_x[0])
+    train_sample_batch_x, train_sample_batch_y = train_generator[0]
     input_vector_size = len(train_sample_batch_x[0][0])
 
     validation_paths = get_validation_paths()
-    validation_generator = SoundExampleGenerator(validation_paths, augment=False)
+    validation_generator = SoundExampleGenerator(
+        validation_paths, batch_size=192, augment=False
+    )
+    validation_data = validation_generator[0]
 
     model = get_tcn_model(input_vector_size)
 
     model.fit_generator(
         train_generator,
-        validation_data=validation_generator,
-        validation_steps=32,
+        validation_data=validation_data,
         steps_per_epoch=128,
         epochs=12,
         shuffle=False,
