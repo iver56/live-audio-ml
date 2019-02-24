@@ -112,7 +112,6 @@ ml/settings/local.py
 data/plots/**/*.png
 data/AudioEventDataset/**/*.wav
 data/AudioEventDataset/readme.txt
-data/prepared_dataset/*.pkl
 data/models/*
 data/customDatasetLaughter/**/*.wav
 data/customDatasetNotLaughter/**/*.wav

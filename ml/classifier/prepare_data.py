@@ -74,34 +74,3 @@ def load_wav_file(sound_file_path):
 
     sound_np = sound_np / 32767  # ends up roughly between -1 and 1
     return sound_np
-
-
-if __name__ == "__main__":
-    plot_dir = DATA_DIR / "plots"
-    os.makedirs(plot_dir, exist_ok=True)
-
-    x_sequences = []
-    y_values = []
-
-    for category in tqdm(CATEGORIES):
-        file_paths = get_file_paths(AUDIO_EVENT_DATASET_PATH / "train" / category)
-        target_value = 1 if is_laughter_category(category) else 0
-
-        for file_path in file_paths:
-            sound_np = load_wav_file(file_path)
-
-            vectors = preprocess_audio_chunk(sound_np)
-
-            x_sequences.append(vectors)
-            y_values.append(target_value)
-
-    x_sequences = np.array(x_sequences, dtype=np.float32)
-    y_values = np.array(y_values, dtype=np.float32)
-
-    os.makedirs(DATA_DIR / "prepared_dataset", exist_ok=True)
-    joblib.dump(
-        {"x_sequences": x_sequences, "y_values": y_values},
-        os.path.join(DATA_DIR / "prepared_dataset", "dataset.pkl"),
-        compress=True,
-    )
-    print("Stored dataset")
