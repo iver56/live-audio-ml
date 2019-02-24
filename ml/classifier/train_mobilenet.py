@@ -1,3 +1,4 @@
+import functools
 import os
 
 import numpy as np
@@ -13,7 +14,7 @@ from ml.classifier.data_generator import (
     SoundExampleGenerator,
 )
 from ml.settings import DATA_DIR
-
+from ml.utils.timer import timer
 
 num_mels = img_width = 128
 fixed_sound_length = img_height = 128
@@ -72,9 +73,22 @@ def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     return model_final
 
 
-if __name__ == "__main__":
-    num_validation_examples = 192
+@functools.lru_cache(maxsize=1)
+def get_validation_data_batch():
+    validation_paths = get_validation_paths()
+    validation_generator = SoundExampleGenerator(
+        validation_paths,
+        batch_size=192,
+        num_mels=num_mels,
+        fixed_sound_length=fixed_sound_length,
+        preprocessing_fn=preprocess_mobilenet_input,
+        augment=False,
+    )
+    validation_data = validation_generator[0]
+    return validation_data
 
+
+def train_model(save=True):
     train_paths = get_train_paths()
     train_generator = SoundExampleGenerator(
         train_paths,
@@ -83,33 +97,28 @@ if __name__ == "__main__":
         preprocessing_fn=preprocess_mobilenet_input,
     )
 
-    print("Making validation data...")
-    validation_paths = get_validation_paths()
-    validation_generator = SoundExampleGenerator(
-        validation_paths,
-        batch_size=num_validation_examples,
-        num_mels=num_mels,
-        fixed_sound_length=fixed_sound_length,
-        preprocessing_fn=preprocess_mobilenet_input,
-        augment=False,
-    )
-    validation_data = validation_generator[0]
+    with timer("get validation data"):
+        validation_data = get_validation_data_batch()
 
     model = get_mobilenet_model(img_width, img_height)
-
-    os.makedirs(DATA_DIR / "models", exist_ok=True)
 
     model_save_path = os.path.join(DATA_DIR / "models", "mobilenet_v2.h5")
     model_checkpoint = ModelCheckpoint(
         model_save_path, monitor="val_acc", verbose=1, save_best_only=True
     )
+    callbacks = [model_checkpoint] if save else []
 
     model.fit_generator(
         train_generator,
         validation_data=validation_data,
-        validation_steps=num_validation_examples,
         steps_per_epoch=64,
         epochs=25,
         shuffle=False,
-        callbacks=[model_checkpoint],
+        callbacks=callbacks,
     )
+
+
+if __name__ == "__main__":
+    os.makedirs(DATA_DIR / "models", exist_ok=True)
+
+    train_model()

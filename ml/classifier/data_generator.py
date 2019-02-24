@@ -99,13 +99,13 @@ class SoundExampleGenerator(Sequence):
             if self.augment:
                 sound_np = self.augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
 
-            vectors = preprocess_audio_chunk(
+            spectrogram = preprocess_audio_chunk(
                 sound_np, fixed_sound_length=self.fixed_sound_length, num_mels=self.num_mels
             )
             if self.save_augmented_images_to_path:
                 # Save the augmented image(vectors) to path
                 generated_uuid = uuid.uuid4()
-                input_image_pil = Image.fromarray((vectors * 255).astype(np.uint8))
+                input_image_pil = Image.fromarray((spectrogram * 255).astype(np.uint8))
                 input_image_pil.save(
                     os.path.join(
                         self.save_augmented_images_to_path,
@@ -115,7 +115,7 @@ class SoundExampleGenerator(Sequence):
                     )
                 )
 
-            x.append(vectors)
+            x.append(spectrogram)
             y.append(target)
 
         x = np.array(x)
