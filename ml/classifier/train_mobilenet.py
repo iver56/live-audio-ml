@@ -42,7 +42,7 @@ def preprocess_mobilenet_input(x):
 
 def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     model = MobileNetV2(
-        alpha=0.5,
+        alpha=1.0,
         weights="imagenet",
         include_top=False,
         input_shape=(img_width, img_height, 3),
