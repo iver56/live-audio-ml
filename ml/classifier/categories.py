@@ -7,7 +7,7 @@ CATEGORIES = (
     "cat",
     "child",
     "church_bell",
-    "crowd",
+    # "crowd",  # commented out because some of these contain laughter
     "dog_barking",
     "engine",
     "fireworks",
