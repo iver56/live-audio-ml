@@ -89,9 +89,9 @@ class SoundExampleGenerator(Sequence):
 
         self.augmenter = Compose(
             [
-                AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
+                AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.002, p=0.1),
                 TimeStretch(min_rate=0.8, max_rate=1.25, p=0.3),
-                PitchShift(min_semitones=-4, max_semitones=4, p=0.3),
+                PitchShift(min_semitones=-3, max_semitones=3, p=0.3),
                 Shift(min_fraction=-0.5, max_fraction=0.5, p=0.5),
             ]
         )
