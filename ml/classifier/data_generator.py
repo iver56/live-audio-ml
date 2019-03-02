@@ -39,6 +39,10 @@ def get_train_paths():
             AUDIO_EVENT_DATASET_PATH / "train" / category
         )
 
+    # We disable the laughter category of the original dataset and instead use just the
+    # custom dataset, which includes some hand-curated examples from the original dataset.
+    sound_file_paths["laughter"] = []
+
     # get paths from custom dataset in addition to the freesound audio event dataset
     custom_laughter_paths = get_file_paths(CUSTOM_AUDIO_SET_DATA_PATH_LAUGHTER)
     sound_file_paths["laughter"] += custom_laughter_paths
@@ -90,8 +94,8 @@ class SoundExampleGenerator(Sequence):
         self.augmenter = Compose(
             [
                 AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.002, p=0.1),
-                TimeStretch(min_rate=0.8, max_rate=1.25, p=0.3),
-                PitchShift(min_semitones=-3, max_semitones=3, p=0.3),
+                TimeStretch(min_rate=0.8, max_rate=1.25, p=0.02),
+                PitchShift(min_semitones=-3, max_semitones=3, p=0.02),
                 Shift(min_fraction=-0.5, max_fraction=0.5, p=0.5),
             ]
         )
