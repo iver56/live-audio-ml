@@ -20,7 +20,7 @@ from ml.classifier.prepare_data import (
     preprocess_audio_chunk,
     FIXED_SOUND_LENGTH,
     NUM_MELS,
-)
+    HOP_LENGTH)
 from ml.settings import (
     AUDIO_EVENT_DATASET_PATH,
     SAMPLE_RATE,
@@ -79,6 +79,7 @@ class SoundExampleGenerator(Sequence):
         self.augment = augment
         self.save_augmented_images_to_path = save_augmented_images_to_path
         self.fixed_sound_length = fixed_sound_length
+        self.min_num_samples = (fixed_sound_length + 3) * HOP_LENGTH
         self.num_mels = num_mels
         self.preprocessing_fn = preprocessing_fn
 
@@ -121,6 +122,10 @@ class SoundExampleGenerator(Sequence):
 
             if self.augment:
                 sound_np = self.augmenter(samples=sound_np, sample_rate=SAMPLE_RATE)
+
+            # Repeat the sound if it is too small to fill the expected spectrogram window
+            while len(sound_np) < self.min_num_samples:
+                sound_np = np.concatenate((sound_np, sound_np))
 
             spectrogram = preprocess_audio_chunk(
                 sound_np,
