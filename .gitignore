@@ -115,3 +115,4 @@ data/AudioEventDataset/readme.txt
 data/models/*
 data/customDatasetLaughter/**/*.wav
 data/customDatasetNotLaughter/**/*.wav
+data/generated_sounds/*

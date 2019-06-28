@@ -9,18 +9,16 @@ from pathlib import Path
 
 from audiomentations import Compose, AddGaussianNoise, TimeStretch, PitchShift, Shift
 from keras.utils import Sequence
+from scipy.io.wavfile import write
 
-from ml.classifier.categories import (
-    CATEGORIES,
-    NON_LAUGHTER_CATEGORIES,
-    is_laughter_category,
-)
+from ml.classifier.categories import CATEGORIES, NON_LAUGHTER_CATEGORIES, is_laughter_category
 from ml.classifier.prepare_data import (
     load_wav_file,
     preprocess_audio_chunk,
     FIXED_SOUND_LENGTH,
     NUM_MELS,
-    HOP_LENGTH)
+    HOP_LENGTH,
+)
 from ml.settings import (
     AUDIO_EVENT_DATASET_PATH,
     SAMPLE_RATE,
@@ -69,7 +67,7 @@ class SoundExampleGenerator(Sequence):
         sound_file_paths,
         batch_size=8,
         augment=True,
-        save_augmented_images_to_path=None,
+        save_augmented_sounds_to_path=None,
         fixed_sound_length=FIXED_SOUND_LENGTH,
         num_mels=NUM_MELS,
         preprocessing_fn=None,
@@ -77,7 +75,7 @@ class SoundExampleGenerator(Sequence):
         self.sound_file_paths = sound_file_paths
         self.batch_size = batch_size
         self.augment = augment
-        self.save_augmented_images_to_path = save_augmented_images_to_path
+        self.save_augmented_sounds_to_path = save_augmented_sounds_to_path
         self.fixed_sound_length = fixed_sound_length
         self.min_num_samples = (fixed_sound_length + 3) * HOP_LENGTH
         self.num_mels = num_mels
@@ -89,8 +87,8 @@ class SoundExampleGenerator(Sequence):
             if not is_laughter_category(category):
                 self.non_laughter_paths += self.sound_file_paths[category]
 
-        if save_augmented_images_to_path:
-            os.makedirs(save_augmented_images_to_path, exist_ok=True)
+        if save_augmented_sounds_to_path:
+            os.makedirs(save_augmented_sounds_to_path, exist_ok=True)
 
         self.augmenter = Compose(
             [
@@ -128,21 +126,27 @@ class SoundExampleGenerator(Sequence):
                 sound_np = np.concatenate((sound_np, sound_np))
 
             spectrogram = preprocess_audio_chunk(
-                sound_np,
-                fixed_sound_length=self.fixed_sound_length,
-                num_mels=self.num_mels,
+                sound_np, fixed_sound_length=self.fixed_sound_length, num_mels=self.num_mels
             )
-            if self.save_augmented_images_to_path:
+            if self.save_augmented_sounds_to_path:
                 # Save the augmented image(vectors) to path
                 generated_uuid = uuid.uuid4()
                 input_image_pil = Image.fromarray((spectrogram * 255).astype(np.uint8))
                 input_image_pil.save(
                     os.path.join(
-                        self.save_augmented_images_to_path,
-                        "{}__{}_input.png".format(
-                            Path(sound_file_path).stem, generated_uuid
-                        ),
+                        self.save_augmented_sounds_to_path,
+                        "{}__{}_input.png".format(Path(sound_file_path).stem, generated_uuid),
                     )
+                )
+
+                # Also save the audio
+                write(
+                    os.path.join(
+                        self.save_augmented_sounds_to_path,
+                        "{}__{}_input.wav".format(Path(sound_file_path).stem, generated_uuid),
+                    ),
+                    SAMPLE_RATE,
+                    sound_np,
                 )
 
             x.append(spectrogram)

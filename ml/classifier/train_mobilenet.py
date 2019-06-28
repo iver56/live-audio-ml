@@ -1,3 +1,4 @@
+import argparse
 import functools
 import os
 
@@ -31,9 +32,7 @@ def preprocess_mobilenet_input(x):
     scaled_images = (2 * (x - 0.5)).astype(np.float32)
 
     # Apply the same greyscale image to all three color channels
-    rgb_canvases = np.zeros(
-        shape=(x.shape[0], x.shape[1], x.shape[2], 3), dtype=np.float32
-    )
+    rgb_canvases = np.zeros(shape=(x.shape[0], x.shape[1], x.shape[2], 3), dtype=np.float32)
     rgb_canvases[:, :, :, 0] = scaled_images
     rgb_canvases[:, :, :, 1] = scaled_images
     rgb_canvases[:, :, :, 2] = scaled_images
@@ -42,10 +41,7 @@ def preprocess_mobilenet_input(x):
 
 def get_mobilenet_model(img_width, img_height, target_vector_size=1):
     model = MobileNetV2(
-        alpha=1.0,
-        weights="imagenet",
-        include_top=False,
-        input_shape=(img_width, img_height, 3),
+        alpha=1.0, weights="imagenet", include_top=False, input_shape=(img_width, img_height, 3)
     )
 
     # Tune all layers
@@ -88,13 +84,17 @@ def get_validation_data_batch():
     return validation_data
 
 
-def train_model(save=True):
+def train_model(save_model=True, save_augmented_sounds=False):
+    save_augmented_sounds_to_path = (
+        DATA_DIR / "generated_sounds" if save_augmented_sounds else None
+    )
     train_paths = get_train_paths()
     train_generator = SoundExampleGenerator(
         train_paths,
         num_mels=num_mels,
         fixed_sound_length=fixed_sound_length,
         preprocessing_fn=preprocess_mobilenet_input,
+        save_augmented_sounds_to_path=save_augmented_sounds_to_path,
     )
 
     with timer("Get validation data"):
@@ -106,7 +106,7 @@ def train_model(save=True):
     model_checkpoint = ModelCheckpoint(
         model_save_path, monitor="val_acc", verbose=1, save_best_only=True
     )
-    callbacks = [model_checkpoint] if save else []
+    callbacks = [model_checkpoint] if save_model else []
 
     model.fit_generator(
         train_generator,
@@ -119,6 +119,22 @@ def train_model(save=True):
 
 
 if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--no-save-model",
+        dest="save_model",
+        help="Pass this argument if you want to disable model storing (useful if you only want"
+        " to train and see some metrics)",
+        action="store_false",
+    )
+    arg_parser.add_argument(
+        "--save-augmented-images",
+        dest="save_augmented_sounds",
+        help="Save spectrograms and images that are generated during training",
+        action="store_true",
+    )
+    args = arg_parser.parse_args()
+
     os.makedirs(DATA_DIR / "models", exist_ok=True)
 
-    train_model()
+    train_model(save_model=args.save_model, save_augmented_sounds=args.save_augmented_sounds)
